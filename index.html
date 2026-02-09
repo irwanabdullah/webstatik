@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<body>
+  <h2>Input Data</h2>
+  <form id="inputForm">
+    <input type="text" id="nama" placeholder="Nama" required><br>
+    <input type="email" id="email" placeholder="Email" required><br>
+    <textarea id="pesan" placeholder="Pesan"></textarea><br>
+    <button type="submit">Kirim</button>
+  </form>
+
+  <h2>Data Tersimpan</h2>
+  <button onclick="ambilData()">Refresh Data</button>
+  <ul id="tampilData"></ul>
+
+  <script>
+    const scriptURL = 'URL_WEB_APP_ANDA_DI_SINI';
+
+    // Logika Input
+    document.getElementById('inputForm').addEventListener('submit', e => {
+      e.preventDefault();
+      const data = {
+        nama: document.getElementById('nama').value,
+        email: document.getElementById('email').value,
+        pesan: document.getElementById('pesan').value
+      };
+      
+      fetch(scriptURL, { method: 'POST', body: JSON.stringify(data) })
+        .then(() => alert("Data terkirim!"))
+        .catch(error => console.error('Error!', error.message));
+    });
+
+    // Logika Tampil
+    function ambilData() {
+      fetch(scriptURL)
+        .then(res => res.json())
+        .then(data => {
+          let list = document.getElementById('tampilData');
+          list.innerHTML = data.map(row => `<li>${row[0]} - ${row[1]} (${row[2]})</li>`).join('');
+        });
+    }
+  </script>
+</body>
+</html>
