@@ -26,6 +26,10 @@
     <hr class="my-4">
 
     <h4>Daftar Data</h4>
+	<div class="mb-3">
+    <button onclick="exportKeExcel()" class="btn btn-success btn-sm">Unduh Excel</button>
+    <button onclick="exportKePDF()" class="btn btn-danger btn-sm">Unduh PDF</button>
+</div>
     <div class="table-responsive">
         <table class="table table-hover border">
             <thead class="table-dark">
@@ -105,6 +109,31 @@
     }
 
     window.onload = ambilData;
+	
+	// Fungsi Export ke EXCEL
+function exportKeExcel() {
+    const tabel = document.querySelector("table");
+    const wb = XLSX.utils.table_to_book(tabel, { sheet: "Data Spreadsheet" });
+    XLSX.writeFile(wb, "Data_Laporan.xlsx");
+}
+
+// Fungsi Export ke PDF
+function exportKePDF() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+
+    doc.text("Laporan Data Spreadsheet", 14, 15);
+    
+    // Mengambil data otomatis dari tabel HTML
+    doc.autoTable({ 
+        html: 'table',
+        startY: 20,
+        theme: 'grid',
+        headStyles: { fillColor: [41, 128, 185] } // Warna biru header
+    });
+
+    doc.save("Data_Laporan.pdf");
+}
 </script>
 </body>
 </html>
