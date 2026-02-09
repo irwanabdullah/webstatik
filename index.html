@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manajemen Data Spreadsheet</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+	<script src="https://cdn.sheetjs.com/xlsx-0.19.3/package/dist/xlsx.full.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
 </head>
 <body class="bg-light p-4">
 
@@ -112,9 +115,21 @@
 	
 	// Fungsi Export ke EXCEL
 function exportKeExcel() {
-    const tabel = document.querySelector("table");
-    const wb = XLSX.utils.table_to_book(tabel, { sheet: "Data Spreadsheet" });
-    XLSX.writeFile(wb, "Data_Laporan.xlsx");
+    const tabel = document.getElementById("tabelData");
+    if (tabel.rows.length === 0 || (tabel.rows.length === 1 && tabel.innerText.includes("Tidak ada data"))) {
+        alert("Tidak ada data untuk diunduh!");
+        return;
+    }
+    
+    // Kita buat sheet dari dataGlobal agar tombol 'Edit/Hapus' tidak ikut masuk ke Excel
+    const ws = XLSX.utils.json_to_sheet(dataGlobal.map(row => ({
+        Nama: row[0],
+        Email: row[1],
+        Pesan: row[2]
+    })));
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Data");
+    XLSX.writeFile(wb, "Data_Export.xlsx");
 }
 
 // Fungsi Export ke PDF
@@ -122,18 +137,23 @@ function exportKePDF() {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
 
+    if (dataGlobal.length === 0) {
+        alert("Tidak ada data untuk diunduh!");
+        return;
+    }
+
     doc.text("Laporan Data Spreadsheet", 14, 15);
     
-    // Mengambil data otomatis dari tabel HTML
-    doc.autoTable({ 
-        html: 'table',
+    // Gunakan dataGlobal agar kolom Aksi (tombol) tidak ikut tercetak di PDF
+    doc.autoTable({
+        head: [['Nama', 'Email', 'Pesan']],
+        body: dataGlobal,
         startY: 20,
-        theme: 'grid',
-        headStyles: { fillColor: [41, 128, 185] } // Warna biru header
     });
 
     doc.save("Data_Laporan.pdf");
 }
+
 </script>
 </body>
 </html>
