@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        body { background-color: #eef2f7; font-family: 'Segoe UI', sans-serif; }
+        .login-box { max-width: 400px; margin: 80px auto; padding: 40px; background: white; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
+        .dashboard-container { display: none; }
+        .table-action-btn { width: 35px; height: 35px; padding: 0; line-height: 35px; text-align: center; border-radius: 50%; }
+    </style>
+</head>
+<body>
+
+    <script>const API_URL = "https://script.google.com/macros/s/AKfycbxAIhuthrzmhDCYWFcBneo9UpGNyhKiqrFO_4XuG5wFiibRpGcmA78OnUBt3ccjLCpO/exec";</script>
+
+    <div id="login-view" class="container">
+        <div class="login-box text-center">
+            <h3 class="mb-4 fw-bold text-primary">Admin Login</h3>
+            <div class="form-floating mb-3">
+                <input type="text" class="form-control" id="username" placeholder="Username">
+                <label>Username</label>
+            </div>
+            <div class="form-floating mb-4">
+                <input type="password" class="form-control" id="password" placeholder="Password">
+                <label>Password</label>
+            </div>
+            <button onclick="handleLogin()" id="btnLogin" class="btn btn-primary w-100 py-2 rounded-pill fw-bold">Masuk</button>
+        </div>
+    </div>
+
+    <div id="dashboard-view" class="dashboard-container">
+        <nav class="navbar navbar-dark bg-primary shadow-sm mb-4">
+            <div class="container">
+                <span class="navbar-brand mb-0 h1 fw-bold"><i class="fas fa-tachometer-alt me-2"></i>Dashboard</span>
+                <button onclick="logout()" class="btn btn-light btn-sm rounded-pill px-3 text-primary fw-bold">Logout</button>
+            </div>
+        </nav>
+
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h4 class="fw-bold text-secondary">Manajemen Portofolio</h4>
+                <button class="btn btn-success rounded-pill shadow-sm px-4" onclick="showModalAdd()">
+                    <i class="fas fa-plus me-1"></i> Tambah Data
+                </button>
+            </div>
+
+            <div class="card shadow-sm border-0 rounded-3">
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="bg-light text-secondary">
+                                <tr>
+                                    <th class="ps-4">Judul Project</th>
+                                    <th>Kategori</th>
+                                    <th>Link</th>
+                                    <th class="text-end pe-4">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="table-body">
+                                <tr><td colspan="4" class="text-center py-4">Memuat data...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalForm" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold" id="modalTitle">Tambah Data</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="dataId">
+                    <div class="mb-3"><label>Judul</label><input type="text" id="judul" class="form-control"></div>
+                    <div class="mb-3"><label>Kategori</label><input type="text" id="kategori" class="form-control" placeholder="Contoh: Landing Page"></div>
+                    <div class="mb-3"><label>Deskripsi</label><textarea id="deskripsi" class="form-control" rows="3"></textarea></div>
+                    <div class="mb-3"><label>Link Gambar (URL)</label><input type="url" id="gambar" class="form-control"></div>
+                    <div class="mb-3"><label>Link Website (URL)</label><input type="url" id="link" class="form-control"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="button" class="btn btn-primary" onclick="saveData()">Simpan</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let modal;
+        let isEdit = false;
+        let allData = [];
+
+        // Check Login Session
+        if (sessionStorage.getItem('admin_token')) {
+            showDashboard();
+        }
+
+        // --- AUTH ---
+        function handleLogin() {
+            const u = document.getElementById('username').value;
+            const p = document.getElementById('password').value;
+            const btn = document.getElementById('btnLogin');
+            
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading...';
+            btn.disabled = true;
+
+            fetch(API_URL + "?action=login", {
+                method: 'POST',
+                body: JSON.stringify({ username: u, password: p })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    sessionStorage.setItem('admin_token', data.token);
+                    Swal.fire({ icon: 'success', title: 'Login Berhasil', timer: 1500, showConfirmButton: false });
+                    showDashboard();
+                } else {
+                    Swal.fire('Error', 'Username/Password Salah', 'error');
+                }
+            })
+            .catch(err => Swal.fire('Error', 'Gagal koneksi server', 'error'))
+            .finally(() => {
+                btn.innerHTML = 'Masuk';
+                btn.disabled = false;
+            });
+        }
+
+        function logout() {
+            sessionStorage.removeItem('admin_token');
+            location.reload();
+        }
+
+        function showDashboard() {
+            document.getElementById('login-view').style.display = 'none';
+            document.getElementById('dashboard-view').style.display = 'block';
+            modal = new bootstrap.Modal(document.getElementById('modalForm'));
+            loadData();
+        }
+
+        // --- CRUD ---
+        function loadData() {
+            fetch(API_URL + "?action=read")
+            .then(res => res.json())
+            .then(res => {
+                if(res.status === 'success') {
+                    allData = res.data;
+                    renderTable(res.data);
+                }
+            });
+        }
+
+        function renderTable(data) {
+            const tbody = document.getElementById('table-body');
+            let html = '';
+            data.forEach(item => {
+                html += `
+                <tr>
+                    <td class="ps-4 fw-bold">${item.judul}</td>
+                    <td><span class="badge bg-info text-dark">${item.kategori}</span></td>
+                    <td><a href="${item.link}" target="_blank" class="text-decoration-none"><i class="fas fa-external-link-alt"></i> Link</a></td>
+                    <td class="text-end pe-4">
+                        <button class="btn btn-warning table-action-btn text-white shadow-sm" onclick="editData('${item.id}')"><i class="fas fa-pen"></i></button>
+                        <button class="btn btn-danger table-action-btn shadow-sm" onclick="deleteData('${item.id}')"><i class="fas fa-trash"></i></button>
+                    </td>
+                </tr>`;
+            });
+            tbody.innerHTML = html || '<tr><td colspan="4" class="text-center">Tidak ada data</td></tr>';
+        }
+
+        function showModalAdd() {
+            isEdit = false;
+            document.getElementById('modalTitle').innerText = "Tambah Project";
+            document.querySelectorAll('#modalForm input, #modalForm textarea').forEach(i => i.value = '');
+            modal.show();
+        }
+
+        function editData(id) {
+            isEdit = true;
+            const item = allData.find(d => d.id === id);
+            document.getElementById('modalTitle').innerText = "Edit Project";
+            document.getElementById('dataId').value = item.id;
+            document.getElementById('judul').value = item.judul;
+            document.getElementById('kategori').value = item.kategori;
+            document.getElementById('deskripsi').value = item.deskripsi;
+            document.getElementById('gambar').value = item.gambar;
+            document.getElementById('link').value = item.link;
+            modal.show();
+        }
+
+        function saveData() {
+            const id = document.getElementById('dataId').value;
+            const payload = {
+                judul: document.getElementById('judul').value,
+                kategori: document.getElementById('kategori').value,
+                deskripsi: document.getElementById('deskripsi').value,
+                gambar: document.getElementById('gambar').value,
+                link: document.getElementById('link').value
+            };
+
+            let action = isEdit ? 'update' : 'create';
+            if(isEdit) payload.id = id;
+
+            Swal.fire({ title: 'Menyimpan...', didOpen: () => Swal.showLoading() });
+
+            fetch(API_URL + "?action=" + action, {
+                method: 'POST',
+                body: JSON.stringify(payload)
+            })
+            .then(res => res.json())
+            .then(res => {
+                if(res.status === 'success') {
+                    Swal.fire('Sukses', res.message, 'success');
+                    modal.hide();
+                    loadData();
+                } else {
+                    Swal.fire('Gagal', res.message, 'error');
+                }
+            });
+        }
+
+        function deleteData(id) {
+            Swal.fire({
+                title: 'Hapus data ini?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                confirmButtonText: 'Ya, Hapus'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({ title: 'Menghapus...', didOpen: () => Swal.showLoading() });
+                    
+                    fetch(API_URL + "?action=delete", {
+                        method: 'POST',
+                        body: JSON.stringify({ id: id })
+                    })
+                    .then(res => res.json())
+                    .then(res => {
+                        if(res.status === 'success') {
+                            Swal.fire('Terhapus', res.message, 'success');
+                            loadData();
+                        }
+                    });
+                }
+            })
+        }
+    </script>
+</body>
+</html>

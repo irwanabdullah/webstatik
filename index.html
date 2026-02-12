@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jasa Pembuatan Website Profesional</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body { font-family: 'Poppins', sans-serif; background-color: #f8f9fa; scroll-behavior: smooth; }
+        .hero { background: linear-gradient(135deg, #0d6efd 0%, #0043a8 100%); color: white; padding: 120px 0 80px; }
+        .card-portfolio { transition: all 0.3s ease; border: none; overflow: hidden; border-radius: 15px; background: white; }
+        .card-portfolio:hover { transform: translateY(-10px); box-shadow: 0 15px 30px rgba(0,0,0,0.1); }
+        .card-img-wrapper { height: 220px; overflow: hidden; position: relative; }
+        .card-img-top { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s; }
+        .card-portfolio:hover .card-img-top { transform: scale(1.1); }
+        .badge-custom { position: absolute; top: 15px; right: 15px; backdrop-filter: blur(5px); background: rgba(13, 110, 253, 0.9); }
+    </style>
+</head>
+<body>
+
+    <script>const API_URL = "https://script.google.com/macros/s/AKfycbxAIhuthrzmhDCYWFcBneo9UpGNyhKiqrFO_4XuG5wFiibRpGcmA78OnUBt3ccjLCpO/exec";</script>
+
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top shadow-sm">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="#"><i class="fas fa-code me-2 text-primary"></i>IRWANDEV STUDIO</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="#home">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#services">Layanan</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#portfolio">Portofolio</a></li>
+                    <li class="nav-item"><a class="nav-link btn btn-primary text-white ms-3 px-4 rounded-pill" href="#contact">Hubungi</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <header id="home" class="hero text-center">
+        <div class="container">
+            <h1 class="display-4 fw-bold mb-3">Solusi Digital Bisnis Anda</h1>
+            <p class="lead mb-4 opacity-75">Jasa pembuatan website profesional, cepat, dan terpercaya.</p>
+            <a href="#portfolio" class="btn btn-light btn-lg rounded-pill px-5 fw-bold text-primary shadow">Lihat Karya</a>
+        </div>
+    </header>
+
+    <section id="services" class="py-5">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2 class="fw-bold">Layanan Unggulan</h2>
+                <div class="d-flex justify-content-center"><div style="height: 3px; width: 50px; background: #0d6efd;"></div></div>
+            </div>
+            <div class="row g-4 text-center">
+                <div class="col-md-4">
+                    <div class="p-4 bg-white shadow-sm rounded-3 h-100">
+                        <div class="icon-box mb-3 text-primary"><i class="fas fa-laptop-code fa-3x"></i></div>
+                        <h4>Custom Website</h4>
+                        <p class="text-muted">Website yang didesain khusus sesuai identitas brand Anda.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="p-4 bg-white shadow-sm rounded-3 h-100">
+                        <div class="icon-box mb-3 text-primary"><i class="fas fa-mobile-alt fa-3x"></i></div>
+                        <h4>Responsive Design</h4>
+                        <p class="text-muted">Tampilan sempurna di Desktop, Tablet, dan Mobile.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="p-4 bg-white shadow-sm rounded-3 h-100">
+                        <div class="icon-box mb-3 text-primary"><i class="fas fa-rocket fa-3x"></i></div>
+                        <h4>SEO Friendly</h4>
+                        <p class="text-muted">Struktur kode yang optimal untuk mesin pencari Google.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="portfolio" class="py-5 bg-light">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2 class="fw-bold">Portofolio Kami</h2>
+                <p class="text-muted">Proyek terbaru yang telah kami selesaikan</p>
+            </div>
+
+            <div id="loader" class="text-center py-5">
+                <div class="spinner-border text-primary" role="status"></div>
+                <p class="mt-2 text-muted">Mengambil data dari server...</p>
+            </div>
+
+            <div class="row g-4" id="portfolio-container">
+                </div>
+        </div>
+    </section>
+
+    <footer class="bg-dark text-white py-4 mt-5 text-center">
+        <div class="container">
+            <p class="mb-0">&copy; 2024 WebDev Studio. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            fetch(API_URL + "?action=read")
+            .then(response => response.json())
+            .then(json => {
+                document.getElementById('loader').style.display = 'none';
+                const container = document.getElementById('portfolio-container');
+                
+                if (json.status === 'success' && json.data.length > 0) {
+                    let html = '';
+                    json.data.forEach(item => {
+                        html += `
+                        <div class="col-md-4">
+                            <div class="card card-portfolio h-100 shadow-sm">
+                                <div class="card-img-wrapper">
+                                    <span class="badge badge-custom text-white shadow-sm">${item.kategori}</span>
+                                    <img src="${item.gambar}" class="card-img-top" alt="${item.judul}" onerror="this.src='https://via.placeholder.com/400x300?text=No+Image'">
+                                </div>
+                                <div class="card-body">
+                                    <h5 class="card-title fw-bold">${item.judul}</h5>
+                                    <p class="card-text text-muted small">${item.deskripsi}</p>
+                                </div>
+                                <div class="card-footer bg-white border-0 pt-0 pb-4">
+                                    <a href="${item.link}" target="_blank" class="btn btn-outline-primary w-100 rounded-pill">Lihat Website <i class="fas fa-external-link-alt ms-1"></i></a>
+                                </div>
+                            </div>
+                        </div>`;
+                    });
+                    container.innerHTML = html;
+                } else {
+                    container.innerHTML = '<div class="col-12 text-center text-muted">Belum ada portofolio.</div>';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('loader').innerHTML = '<p class="text-danger">Gagal memuat data. Coba refresh halaman.</p>';
+            });
+        });
+    </script>
+</body>
+</html>
